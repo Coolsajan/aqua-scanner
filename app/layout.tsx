@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AuthProvider } from "./context/AuthContext";
 
 export const metadata: Metadata = {
   title: "AquaScan — Aquarium Intelligence",
@@ -21,7 +22,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
       </head>
-      <body style={{ margin: 0, background: "#040d14", overflowX: "hidden" }}>{children}</body>
+      <body style={{ margin: 0, background: "#040d14", overflowX: "hidden" }}>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }
