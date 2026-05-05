@@ -4,105 +4,111 @@ const DESIGN_SYSTEM_PROMPT = `You are AquaDesign — the world's most knowledgea
 
 Given tank parameters, you MUST return EXACTLY 4 distinct design ideas as a JSON object.
 
-Return ONLY this JSON structure, nothing else:
+Return ONLY valid JSON — no markdown fences, no explanation, no preamble. Start directly with { and end with }.
+
+The JSON must match this structure exactly:
 {
   "designs": [
     {
-      "title": "Catchy design name",
+      "title": "Catchy design name (2-4 words)",
       "tagline": "One evocative sentence describing the vibe",
-      "theme": "Theme category e.g. Iwagumi, Biotope, Dutch, Jungle",
-      "difficulty": "Beginner / Intermediate / Advanced / Expert",
-      "budgetMatch": "Budget-friendly / Mid-range / Premium / Luxury",
-      "estimatedCost": "$X–$Y total setup estimate",
+      "theme": "Theme e.g. Iwagumi, Biotope, Dutch, Jungle, Blackwater",
+      "difficulty": "Beginner",
+      "budgetMatch": "Budget-friendly",
+      "estimatedCost": "$200–$350",
+      "imagePrompt": "photorealistic aquarium tank, lush aquascape with java fern and anubias, mopani driftwood centerpiece, school of neon tetras swimming, crystal clear water, dramatic underwater lighting, soft caustic light rays, professional aquarium photography, vibrant greens, 8k detail",
       "stockingList": [
-        { "name": "Neon Tetra", "qty": "20", "role": "Schooling fish / color accent" }
+        { "name": "Neon Tetra", "qty": "20", "role": "Schooling fish / color accent" },
+        { "name": "Corydoras Sterbai", "qty": "6", "role": "Bottom dweller / cleanup crew" }
       ],
       "plantList": [
-        { "name": "Java Fern", "zone": "Background", "qty": "5 pots" }
+        { "name": "Java Fern", "zone": "Background", "qty": "5 pots" },
+        { "name": "Anubias Nana", "zone": "Midground", "qty": "3 pots" },
+        { "name": "Dwarf Hairgrass", "zone": "Foreground", "qty": "4 pots" }
       ],
-      "hardscape": ["Mopani driftwood", "Seiryu stone"],
-      "filtrationRec": "Specific filter recommendation with model type and turnover rate",
-      "lightingRec": "Specific lighting recommendation",
-      "co2Rec": "CO2 recommendation",
-      "substrate": "Substrate recommendation",
-      "waterParams": {
-        "ph": "6.5–7.0",
-        "temp": "24–26°C",
-        "hardness": "Soft (2–8 dGH)"
-      },
-      "layoutDescription": "Vivid 3-4 sentence description of the design vision and layout — where plants go, how hardscape is arranged, the overall aesthetic feeling",
+      "hardscape": ["Mopani driftwood x2", "Seiryu stone x3"],
+      "filtrationRec": "Canister filter rated 4-5x tank volume turnover",
+      "lightingRec": "Full spectrum LED, 6500K, 8 hours photoperiod",
+      "co2Rec": "Not required — plants selected for low-tech",
+      "substrate": "Fine gravel or sand, 5–7cm depth",
+      "waterParams": { "ph": "6.5–7.0", "temp": "24–26°C", "hardness": "Soft (2–8 dGH)" },
+      "layoutDescription": "Vivid 3-4 sentence description of the design: where hardscape sits, how plants are arranged front-to-back, open swimming space, and the overall mood this creates.",
       "topDownLayout": [
-        ["🌿","🌿","🪵","🌿","🌿","🌿","🌿","🌿","🌿","🌿"],
-        ["🌿","🪵","🪵","🌿","💧","💧","💧","🌱","🌱","🌿"],
-        ["🪵","🪵","🌿","💧","💧","🐟","🐟","💧","🌱","🌱"],
-        ["🌿","🌿","💧","💧","🐟","🐟","🐟","💧","🌱","🌱"],
-        ["🌱","🌱","🌱","💧","💧","💧","💧","🌱","🌱","🌱"],
+        ["🌿","🌿","🪵","🪵","🌿","🌿","🌿","🌿","🌿","🌿"],
+        ["🌿","🪵","🪵","🌿","💧","💧","💧","🌿","🌿","🌿"],
+        ["🌿","🌿","🌿","💧","💧","🐟","🐟","💧","🌿","🌿"],
+        ["🌱","🌱","💧","💧","🐟","🐟","🐟","💧","🌱","🌱"],
+        ["🌱","🌱","🌱","🌱","💧","💧","🌱","🌱","🌱","🌱"],
         ["🌱","🌱","🌱","🌱","🌱","🌱","🌱","🌱","🌱","🌱"]
       ],
       "maintenanceSchedule": [
-        { "frequency": "Daily", "tasks": ["Check fish health", "Top off evaporation"] },
-        { "frequency": "Weekly", "tasks": ["30% water change", "Trim fast-growing plants", "Clean filter intake"] },
-        { "frequency": "Monthly", "tasks": ["Deep substrate vacuum", "Check/replace filter media", "Fertilizer dose"] }
+        { "frequency": "Daily", "tasks": ["Check fish health and behavior", "Top off evaporation"] },
+        { "frequency": "Weekly", "tasks": ["25–30% water change", "Trim fast-growing plants", "Wipe algae from glass"] },
+        { "frequency": "Monthly", "tasks": ["Deep gravel vacuum", "Inspect and clean filter media", "Dose liquid fertilizer"] }
       ],
       "setupTimeline": [
-        { "week": "Week 1", "task": "Set up hardscape, add substrate, fill tank, start filter cycle" },
-        { "week": "Week 2–3", "task": "Add plants, begin dosing ammonia for fishless cycle" },
-        { "week": "Week 4–6", "task": "Monitor ammonia/nitrite levels, complete nitrogen cycle" },
-        { "week": "Week 6–8", "task": "Add first fish (hardy species first), observe behavior" },
-        { "week": "Week 8+", "task": "Add remaining livestock gradually over several weeks" }
+        { "week": "Day 1", "task": "Rinse substrate, place hardscape, fill tank, start filter" },
+        { "week": "Week 1–2", "task": "Add plants, begin fishless cycle with ammonia source" },
+        { "week": "Week 3–5", "task": "Monitor ammonia and nitrite daily, cycle progressing" },
+        { "week": "Week 6", "task": "Cycle complete — add first 30% of fish, observe for 1 week" },
+        { "week": "Week 7+", "task": "Gradually add remaining livestock over the next few weeks" }
       ],
-      "pros": ["Great for beginners", "Low maintenance", "Visually striking"],
-      "cons": ["Slower plant growth without CO2", "Limited plant species options"],
-      "compatibilityNotes": "All species listed are compatible. Avoid keeping with fin-nipping species. Corydoras are sensitive to salt."
+      "pros": ["Beginner friendly", "Low maintenance", "Visually striking year-round"],
+      "cons": ["Slower plant growth without CO2", "Limited high-light plant options"],
+      "compatibilityNotes": "All species are peaceful and compatible. Avoid fin-nippers. Corydoras prefer groups of 6+."
     }
   ]
 }
 
+CRITICAL RULES for imagePrompt:
+- Write it as a direct Stable Diffusion / Flux image prompt (comma-separated descriptors)
+- Be VERY specific about the exact plants, fish, and hardscape in THIS design
+- Always include: "photorealistic aquarium", "crystal clear water", "professional aquarium photography", "underwater lighting", "8k detail"  
+- Make each of the 4 imagePrompts completely different and specific to that design's species and style
+- Example good prompt: "photorealistic planted aquarium tank, dense jungle of amazon sword and rotala, large piece of spider wood covered in java moss, school of cardinal tetras, corydoras on sandy bottom, blackwater tint, dramatic side lighting, caustic light rays, lush green underwater photography, 8k"
+
 RULES for topDownLayout:
-- Use a grid of at least 6 rows × 10 columns (can be larger for bigger tanks)
-- Use ONLY these emojis as cells: 🌿 (plants/stems), 🪨 (rock/stone), 🪵 (driftwood), 🐟 (open swimming area), 🌱 (carpet/foreground plants), 💧 (open water), 🏔️ (mountain stone/rock pile), ⬜ (sand/open substrate), 🌾 (grass/stem plants)
-- The layout must realistically represent the design: background plants at top, midground in middle, foreground at bottom
-- Show interesting hardscape arrangements, open swimming corridors for fish
-- Each of the 4 designs must have a COMPLETELY DIFFERENT topDownLayout
+- Grid must be 6 rows × 10 columns minimum
+- Use ONLY: 🌿 (stem/tall plants), 🪨 (rock), 🪵 (driftwood), 🐟 (open swim zone), 🌱 (carpet/foreground), 💧 (open water), 🏔️ (rock pile), ⬜ (sand), 🌾 (grass stems)
+- Background plants (🌿🌾) at TOP rows, carpet (🌱) at BOTTOM rows, swimming space (🐟💧) in MIDDLE
+- Each design must have a unique, distinct layout arrangement
 
 RULES for designs:
-- Make all 4 designs genuinely distinct in style, difficulty, stocking, plants, and approach
-- Scale recommendations to the tank dimensions and volume provided
-- Respect the user's budget, experience level, filtration preference, and CO2 preference
-- If "buildMode" is "existing" and prop images are provided, adapt designs to use those items
-- If "buildMode" is "new", recommend fresh/ideal equipment within budget
-- stockingList should have realistic quantities for the tank size
-- plantList zones: Foreground, Midground, Background, or Floating
-- Be specific with equipment — name filter types, wattage, etc.
-- estimatedCost should be realistic for the budget range specified
-- All species must be compatible with each other within each design`;
+- All 4 designs must be genuinely distinct — different styles, species, difficulty levels
+- Scale stocking quantities to the actual tank volume
+- Respect the user's stated budget, experience level, CO2 preference, filtration type
+- If buildMode is "existing": work around their existing equipment shown in photos
+- If buildMode is "new": recommend ideal gear for their budget
+- All species within each design must be compatible with each other
+- estimatedCost must match the user's budget range`;
 
 export async function POST(req: NextRequest) {
   const { form, propImages, volume } = await req.json();
 
-  // Build the user prompt
   const dims = `${form.length}×${form.width}×${form.height}${form.unit}`;
   const vol = volume ? `~${volume} liters` : "unknown volume";
 
-  let userPrompt = `Design 4 aquarium ideas for this setup:
+  let userPrompt = `Create 4 aquarium design ideas for this tank:
 
-TANK: ${dims} (${vol}), ${form.shape} shape
-ECOSYSTEM: ${form.ecosystem} | STYLE: ${form.style}
-FISH WANTED: ${form.fishWanted || "open to suggestions"}
+DIMENSIONS: ${dims} (${vol}), ${form.shape} shape
+ECOSYSTEM TYPE: ${form.ecosystem}
+AESTHETIC STYLE: ${form.style}
+FISH WANTED: ${form.fishWanted || "surprise me with great choices"}
 FISH COUNT: ${form.fishCount || "appropriate for tank size"}
-CENTERPIECE: ${form.hasCenterpiece || "no preference"}
-PLANTS: ${form.wantsPlants} | HARDSCAPE: ${form.wantsHardscape}
-FILTRATION: ${form.filtration} | CO2: ${form.co2}
-LIGHTING: ${form.lighting} (${form.lightingBudget})
-EXPERIENCE: ${form.experience}
-BUDGET: ${form.budget}
-MAINTENANCE: ${form.maintenanceTime}
-BUILD MODE: ${form.buildMode === "existing" ? "Design around existing props/equipment" : "Generate fresh ideas within budget"}
-${form.propsDescription ? `EXTRA NOTES: ${form.propsDescription}` : ""}
+CENTERPIECE FISH: ${form.hasCenterpiece || "no preference"}
+LIVE PLANTS: ${form.wantsPlants}
+HARDSCAPE: ${form.wantsHardscape}
+FILTRATION: ${form.filtration}
+CO2 SYSTEM: ${form.co2}
+LIGHTING: ${form.lighting} — budget: ${form.lightingBudget}
+HOBBYIST EXPERIENCE: ${form.experience}
+TOTAL BUDGET: ${form.budget}
+MAINTENANCE AVAILABILITY: ${form.maintenanceTime}
+BUILD MODE: ${form.buildMode === "existing" ? "Design AROUND the user's existing props/equipment in photos" : "Fresh recommendations within budget"}
+${form.propsDescription ? `EXTRA NOTES FROM USER: ${form.propsDescription}` : ""}
 
-Return exactly 4 distinct design ideas as JSON. No markdown, no explanation — pure JSON only.`;
+IMPORTANT: Return ONLY the raw JSON object. No markdown. No explanation. Start with { immediately.`;
 
-  // Build messages array - include images if provided
   type ContentBlock =
     | { type: "text"; text: string }
     | { type: "image_url"; image_url: { url: string } };
@@ -110,13 +116,13 @@ Return exactly 4 distinct design ideas as JSON. No markdown, no explanation — 
   const contentBlocks: ContentBlock[] = [];
 
   if (propImages && propImages.length > 0) {
-    propImages.forEach((img: { mime: string; base64: string; name: string }) => {
+    propImages.slice(0, 4).forEach((img: { mime: string; base64: string; name: string }) => {
       contentBlocks.push({
         type: "image_url",
         image_url: { url: `data:${img.mime};base64,${img.base64}` },
       });
     });
-    userPrompt += `\n\nThe user has uploaded ${propImages.length} photo(s) of their existing props/equipment/inspiration. Please consider these when designing.`;
+    userPrompt += `\n\n${propImages.length} prop/inspiration image(s) uploaded above — incorporate these into the designs.`;
   }
 
   contentBlocks.push({ type: "text", text: userPrompt });
@@ -129,8 +135,9 @@ Return exactly 4 distinct design ideas as JSON. No markdown, no explanation — 
     },
     body: JSON.stringify({
       model: "meta-llama/llama-4-scout-17b-16e-instruct",
-      max_tokens: 4000,
-      temperature: 0.7,
+      max_tokens: 6000,
+      temperature: 0.65,
+      response_format: { type: "json_object" },
       messages: [
         { role: "system", content: DESIGN_SYSTEM_PROMPT },
         { role: "user", content: contentBlocks },
@@ -141,7 +148,7 @@ Return exactly 4 distinct design ideas as JSON. No markdown, no explanation — 
   if (!response.ok) {
     const err = await response.text();
     console.error("Groq API error:", err);
-    return NextResponse.json({ error: "AI design generation failed. Check GROQ_API_KEY." }, { status: 500 });
+    return NextResponse.json({ error: "AI design generation failed. Check your GROQ_API_KEY in Vercel environment variables." }, { status: 500 });
   }
 
   const data = await response.json();
@@ -149,15 +156,28 @@ Return exactly 4 distinct design ideas as JSON. No markdown, no explanation — 
 
   try {
     const clean = text.replace(/```json|```/g, "").trim();
-    // Find the JSON object
     const start = clean.indexOf("{");
     const end = clean.lastIndexOf("}");
-    if (start === -1 || end === -1) throw new Error("No JSON found");
-    const jsonStr = clean.slice(start, end + 1);
-    const parsed = JSON.parse(jsonStr);
+    if (start === -1 || end === -1) throw new Error("No JSON object in response");
+    const parsed = JSON.parse(clean.slice(start, end + 1));
+
+    // Validate and clean imagePrompts — ensure they're proper Pollinations prompts
+    if (parsed.designs) {
+      parsed.designs = parsed.designs.map((d: Record<string, unknown>, i: number) => {
+        if (!d.imagePrompt || typeof d.imagePrompt !== "string" || d.imagePrompt.length < 30) {
+          // Build a fallback prompt from the design details
+          const plants = Array.isArray(d.plantList) ? (d.plantList as {name:string}[]).slice(0,3).map((p) => p.name).join(", ") : "aquatic plants";
+          const fish = Array.isArray(d.stockingList) ? (d.stockingList as {name:string}[]).slice(0,2).map((f) => f.name).join(", ") : "tropical fish";
+          const hw = Array.isArray(d.hardscape) ? (d.hardscape as string[])[0] || "driftwood" : "driftwood";
+          d.imagePrompt = `photorealistic planted aquarium tank, ${plants}, ${hw}, school of ${fish}, crystal clear water, dramatic underwater lighting, soft caustic rays, lush aquascape photography, vibrant colors, 8k detail, design number ${i + 1}`;
+        }
+        return d;
+      });
+    }
+
     return NextResponse.json(parsed);
   } catch (e) {
-    console.error("JSON parse error:", e, "\nRaw text:", text.slice(0, 500));
-    return NextResponse.json({ error: "Failed to parse AI design response. Please try again." }, { status: 500 });
+    console.error("JSON parse error:", e, "\nRaw:", text.slice(0, 800));
+    return NextResponse.json({ error: "Failed to parse AI response. Please try again." }, { status: 500 });
   }
 }
