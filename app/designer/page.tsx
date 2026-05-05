@@ -2,6 +2,8 @@
 import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import AuthButton from "../components/AuthButton";
+import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
 import "../globals.css";
 
 interface TankForm {
@@ -79,6 +81,7 @@ export default function DesignerPage(){
   const [step,setStep]=useState<"form"|"results">("form");
   const fileRef=useRef<HTMLInputElement>(null);
   const volume=calcVolume(form);
+  const { user } = useAuth();
 
   const set=(k:keyof TankForm,v:string)=>setForm(p=>({...p,[k]:v}));
 
@@ -102,6 +105,15 @@ export default function DesignerPage(){
       const data=await res.json();
       setDesigns(data.designs||[]);
       setStep("results");setActiveDesign(0);
+      
+      if (user) {
+        await supabase.from("user_scans").insert({
+          user_id: user.id,
+          scan_type: "design",
+          inputs: form,
+          results: data.designs
+        });
+      }
     }catch(e:unknown){setError(e instanceof Error?e.message:"Something went wrong.");}
     finally{setLoading(false);}
   };
