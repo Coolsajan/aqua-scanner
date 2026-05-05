@@ -17,6 +17,7 @@ The JSON must match this structure exactly:
       "budgetMatch": "Budget-friendly",
       "estimatedCost": "$200–$350",
       "imagePrompt": "photorealistic aquarium tank, lush aquascape with java fern and anubias, mopani driftwood centerpiece, school of neon tetras swimming, crystal clear water, dramatic underwater lighting, soft caustic light rays, professional aquarium photography, vibrant greens, 8k detail",
+      "imagePromptTopDown": "photorealistic top-down aerial view of aquarium layout, looking straight down into the water from above, lush aquascape, mopani driftwood, bright top-down lighting, clear water surface, professional photography, 8k",
       "stockingList": [
         { "name": "Neon Tetra", "qty": "20", "role": "Schooling fish / color accent" },
         { "name": "Corydoras Sterbai", "qty": "6", "role": "Bottom dweller / cleanup crew" }
@@ -52,60 +53,14 @@ The JSON must match this structure exactly:
   ]
 }
 
-CRITICAL RULES for imagePrompt (EXTREMELY IMPORTANT):
+CRITICAL RULES for imagePrompt:
+- Write it as a direct Stable Diffusion / Flux image prompt (comma-separated descriptors)
+- Be VERY specific about the exact plants, fish, and hardscape in THIS design
+- Always include: "photorealistic aquarium", "crystal clear water", "professional aquarium photography", "underwater lighting", "8k detail"  
+- EXTREMELY IMPORTANT: For "imagePrompt", you MUST explicitly use DIFFERENT color palettes, lighting styles, and moods for each of the 4 designs so they visually pop (e.g. warm/golden sunset, cool/blue oceanic, dark/moody blackwater, bright/vivid daylight).
+- Example good prompt: "photorealistic planted aquarium tank, dense jungle of amazon sword and rotala, large piece of spider wood covered in java moss, school of cardinal tetras, corydoras on sandy bottom, blackwater tint, dramatic side lighting, caustic light rays, lush green underwater photography, 8k"
+- Provide an "imagePromptTopDown" that uses "top-down aerial view", "bird's-eye view looking straight down", and describes the layout from above.
 
-You are writing prompts for a diffusion image model.
-
-The camera must ALWAYS be outside the tank looking through the glass.
-NEVER use top-down view. NEVER use isometric view. NEVER show tank from above.
-
-Each of the 4 designs MUST use a DIFFERENT camera setup:
-
-Design 1 → Eye-level wide shot (24mm lens)
-Design 2 → Cinematic 45° angle (35mm lens)
-Design 3 → Close mid shot with shallow depth of field (50mm lens)
-Design 4 → Side perspective hero shot (85mm lens)
-
-Every prompt MUST include:
-
-CAMERA & PHOTOGRAPHY
-- photographed through aquarium glass
-- realistic glass thickness visible
-- waterline visible
-- room environment softly visible outside tank
-- DSLR photography
-- depth of field
-- cinematic lighting
-- ultra high detail
-
-REALISM CONSTRAINTS
-- correct fish scale
-- correct plant scale
-- realistic substrate grain size
-- realistic aquarium LED lighting
-- natural light reflections on glass
-- NO miniature toy look
-- NO CGI render look
-- NO illustration
-- NO top view
-
-QUALITY
-- photorealistic aquarium
-- crystal clear water
-- professional aquarium photography
-- ultra detailed
-- 8k
-- HDR
-- sharp focus
-
-COMPOSITION RULE:
-Each design must use a DIFFERENT composition:
-- rule of thirds
-- centered composition
-- left-heavy composition
-- right-heavy composition
-
-The prompt must be a long comma-separated Stable Diffusion prompt.
 
 RULES for designs:
 - All 4 designs must be genuinely distinct — different styles, species, difficulty levels
@@ -198,13 +153,19 @@ IMPORTANT: Return ONLY the raw JSON object. No markdown. No explanation. Start w
     // Validate and clean imagePrompts — ensure they're proper Pollinations prompts
     if (parsed.designs) {
       parsed.designs = parsed.designs.map((d: Record<string, unknown>, i: number) => {
+        const plants = Array.isArray(d.plantList) ? (d.plantList as {name:string}[]).slice(0,3).map((p) => p.name).join(", ") : "aquatic plants";
+        const fish = Array.isArray(d.stockingList) ? (d.stockingList as {name:string}[]).slice(0,2).map((f) => f.name).join(", ") : "tropical fish";
+        const hw = Array.isArray(d.hardscape) ? (d.hardscape as string[])[0] || "driftwood" : "driftwood";
+        
         if (!d.imagePrompt || typeof d.imagePrompt !== "string" || d.imagePrompt.length < 30) {
           // Build a fallback prompt from the design details
-          const plants = Array.isArray(d.plantList) ? (d.plantList as {name:string}[]).slice(0,3).map((p) => p.name).join(", ") : "aquatic plants";
-          const fish = Array.isArray(d.stockingList) ? (d.stockingList as {name:string}[]).slice(0,2).map((f) => f.name).join(", ") : "tropical fish";
-          const hw = Array.isArray(d.hardscape) ? (d.hardscape as string[])[0] || "driftwood" : "driftwood";
           d.imagePrompt = `photorealistic planted aquarium tank, ${plants}, ${hw}, school of ${fish}, crystal clear water, dramatic underwater lighting, soft caustic rays, lush aquascape photography, vibrant colors, 8k detail, design number ${i + 1}`;
         }
+        
+        if (!d.imagePromptTopDown || typeof d.imagePromptTopDown !== "string" || d.imagePromptTopDown.length < 30) {
+          d.imagePromptTopDown = `photorealistic top-down aerial view of aquarium layout, looking straight down, ${plants}, ${hw}, bright top-down lighting, clear water surface, professional photography, 8k`;
+        }
+        
         return d;
       });
     }
