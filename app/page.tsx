@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
+import AuthButton from "./components/AuthButton";
 import "./globals.css";
 
 type ScanCategory = "plant" | "fish" | "driftwood" | "sand";
@@ -125,6 +126,7 @@ export default function ScannerPage() {
           <Link href="/" className="nav-tab active">🔬 <span className="tab-label">Scanner</span></Link>
           <Link href="/designer" className="nav-tab">🎨 <span className="tab-label">Designer</span></Link>
         </div>
+        <AuthButton />
       </nav>
       <div className="orbs">
         <div className="orb" style={{width:400,height:400,background:"#00b4d8",top:-120,left:-120}}/>
