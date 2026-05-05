@@ -31,7 +31,8 @@ export default function AuthButton() {
           style={{ width: "28px", height: "28px", borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.1)" }}
         />
         <button onClick={handleLogout} className="nav-tab" style={{ padding: "5px 10px", fontSize: "0.75rem", border: "1px solid rgba(255,77,109,0.3)", background: "rgba(255,77,109,0.1)", color: "#ff8fa3" }}>
-          Sign Out
+          <span className="hide-mob">Sign Out</span>
+          <span className="show-mob">✕</span>
         </button>
       </div>
     );
@@ -39,7 +40,7 @@ export default function AuthButton() {
 
   return (
     <button onClick={handleLogin} className="nav-tab" style={{ marginLeft: "auto", border: "1px solid rgba(0,180,216,0.3)", background: "rgba(0,180,216,0.1)", color: "#00e5ff" }}>
-      Login with Google
+      <span className="hide-mob">Login with </span>Google
     </button>
   );
 }
