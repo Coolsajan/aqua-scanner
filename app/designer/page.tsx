@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
+import AuthButton from "../components/AuthButton";
 import "../globals.css";
 
 interface TankForm {
@@ -15,6 +16,7 @@ interface TankForm {
 interface DesignIdea {
   title:string;tagline:string;theme:string;difficulty:string;budgetMatch:string;estimatedCost:string;
   imagePrompt:string;
+  imagePromptTopDown?:string;
   stockingList:{name:string;qty:string;role:string}[];
   plantList:{name:string;zone:string;qty:string}[];
   hardscape:string[];
@@ -60,11 +62,11 @@ function calcVolume(f:TankForm){
 }
 
 // Build Pollinations URL — free, no API key, no signup
-function buildImageUrl(prompt:string,seed:number):string{
+function buildImageUrl(prompt:string,seed:number,w:number=896,h:number=504):string{
   // Full cinematic prompt with quality boosters
   const fullPrompt = prompt + ", photorealistic, cinematic, no text, no watermark, award winning photography";
   const encoded=encodeURIComponent(fullPrompt);
-  return `https://image.pollinations.ai/prompt/${encoded}?width=896&height=504&model=flux&nologo=true&seed=${seed}&enhance=true&safe=false`;
+  return `https://image.pollinations.ai/prompt/${encoded}?width=${w}&height=${h}&model=flux&nologo=true&seed=${seed}&enhance=true&safe=false`;
 }
 
 export default function DesignerPage(){
@@ -288,6 +290,7 @@ export default function DesignerPage(){
           <Link href="/" className="nav-tab">🔬 <span className="tab-label">Scanner</span></Link>
           <Link href="/designer" className="nav-tab active">🎨 <span className="tab-label">Designer</span></Link>
         </div>
+        <AuthButton />
       </nav>
       <div className="orbs">
         <div className="orb" style={{width:400,height:400,background:"#06d6a0",top:-160,right:-120}}/>
@@ -312,7 +315,12 @@ export default function DesignerPage(){
                   </button>
                 ))}
               </div>
-              {designs[activeDesign]&&<DesignCard d={designs[activeDesign]} idx={activeDesign}/>}
+              {/* Render all cards but only show active, this keeps image loading states intact across tab switches */}
+              {designs.map((d,i)=>(
+                <div key={i} style={{display: activeDesign===i?"block":"none"}}>
+                  <DesignCard d={d} idx={i} formLength={form.length} formWidth={form.width} />
+                </div>
+              ))}
             </>
           ):(
             <>
@@ -430,13 +438,41 @@ export default function DesignerPage(){
 const ZONE_CLASS:Record<string,string>={foreground:"zfg",midground:"zmg",background:"zbg",floating:"zfl",fg:"zfg",mg:"zmg",bg:"zbg"};
 const CELL_LEGEND:Record<string,string>={"🌿":"Plants","🪨":"Rock","🪵":"Driftwood","🐟":"Swim space","🌱":"Carpet","💧":"Open water","🏔️":"Stone pile","⬜":"Sand","🌾":"Stem grass"};
 
-function DesignCard({d,idx}:{d:DesignIdea;idx:number}){
+function DesignCard({d,idx,formLength,formWidth}:{d:DesignIdea;idx:number;formLength:string;formWidth:string}){
+  // Staggered loading: delay loading of designs 2-4 to prevent rate limiting
+  const [shouldLoad, setShouldLoad] = useState(false);
+  import("react").then((m) => {
+    // using dynamic useEffect to avoid top level import conflict if any
+  });
+  
   const [imgLoaded,setImgLoaded]=useState(false);
   const [imgError,setImgError]=useState(false);
-  // Deterministic seed from design index + title
-  const seed=idx*1000+(d.title?.length||0)*7;
-  const imgUrl=d.imagePrompt?buildImageUrl(d.imagePrompt,seed):"";
-  const uniqueCells=d.topDownLayout?Array.from(new Set(d.topDownLayout.flat())):[];
+  const [retryCount, setRetryCount] = useState(0);
+
+  const [tdLoaded,setTdLoaded]=useState(false);
+  const [tdError,setTdError]=useState(false);
+  const [tdRetry, setTdRetry] = useState(0);
+
+  // Aspect ratio calculation for top-down view
+  const l = parseFloat(formLength) || 120;
+  const w = parseFloat(formWidth) || 45;
+  const ratio = l / w;
+  let tdW = 800;
+  let tdH = Math.round(800 / ratio);
+  if (tdH > 800) { tdH = 800; tdW = Math.round(800 * ratio); }
+
+  const seed = idx*1000+(d.title?.length||0)*7 + retryCount;
+  const tdSeed = seed + 500 + tdRetry;
+
+  const imgUrl = (shouldLoad && d.imagePrompt) ? buildImageUrl(d.imagePrompt, seed) : "";
+  const tdUrl = (shouldLoad && d.imagePromptTopDown) ? buildImageUrl(d.imagePromptTopDown, tdSeed, tdW, tdH) : "";
+
+  const handleImgError = () => { if(retryCount < 3) setRetryCount(r=>r+1); else setImgError(true); };
+  const handleTdError = () => { if(tdRetry < 3) setTdRetry(r=>r+1); else setTdError(true); };
+
+  if (typeof window !== 'undefined' && !shouldLoad) {
+    setTimeout(() => setShouldLoad(true), idx * 2500); // 2.5s delay per index
+  }
 
   return(
     <div className="detail-card">
@@ -450,13 +486,13 @@ function DesignCard({d,idx}:{d:DesignIdea;idx:number}){
                 <div className="ai-img-loading-text">Generating realistic aquascape...</div>
               </div>
             )}
-            <img
+              <img
               className="ai-img"
               src={imgUrl}
               alt={d.title}
               style={{opacity:imgLoaded?1:0,transition:"opacity 0.5s"}}
               onLoad={()=>setImgLoaded(true)}
-              onError={()=>setImgError(true)}
+              onError={handleImgError}
             />
           </>
         ):(
@@ -480,28 +516,32 @@ function DesignCard({d,idx}:{d:DesignIdea;idx:number}){
         <span className="badge" style={{background:"rgba(72,202,228,.1)",border:"1px solid rgba(72,202,228,.25)",color:"#48cae4"}}>🎨 {d.theme}</span>
       </div>
 
-      {/* Top-down layout */}
-      {d.topDownLayout&&d.topDownLayout.length>0&&(
-        <div className="td-wrap">
+      {/* Top-down layout AI Image */}
+      {d.imagePromptTopDown&&(
+        <div className="td-wrap" style={{marginTop:18}}>
           <div className="td-title">📐 Top-Down Tank Layout</div>
-          <div className="td-grid-outer">
-            <div className="td-grid" style={{gridTemplateRows:`repeat(${d.topDownLayout.length},26px)`}}>
-              {d.topDownLayout.map((row,ri)=>(
-                <div key={ri} className="td-row">
-                  {row.map((cell,ci)=>(
-                    <div key={ci} className="td-cell" style={{background:CELL_COLORS[cell]||"rgba(0,20,40,0.5)"}}>{cell}</div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="legend">
-            {uniqueCells.map(c=>(
-              <div key={c} className="legend-item">
-                <span style={{width:12,height:12,borderRadius:2,background:CELL_COLORS[c]||"#0a1e2e",display:"inline-block",flexShrink:0}}/>
-                {CELL_LEGEND[c]||c}
+          <div style={{position:"relative",width:"100%",paddingBottom:`${(tdH/tdW)*100}%`,overflow:"hidden",borderRadius:"12px",background:"rgba(0,20,40,0.5)",border:"1.5px solid rgba(0,180,216,.22)"}}>
+            {!tdError&&tdUrl?(
+              <>
+                {!tdLoaded&&(
+                  <div className="ai-img-placeholder">
+                    <div className="ai-img-spinner" style={{width:24,height:24,borderWidth:2}}/>
+                    <div className="ai-img-loading-text" style={{fontSize:"0.7rem"}}>Rendering top-down view...</div>
+                  </div>
+                )}
+                <img
+                  src={tdUrl}
+                  alt={`Top down view of ${d.title}`}
+                  style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",opacity:tdLoaded?1:0,transition:"opacity 0.5s"}}
+                  onLoad={()=>setTdLoaded(true)}
+                  onError={handleTdError}
+                />
+              </>
+            ):(
+              <div className="ai-img-placeholder" style={{background:"rgba(0,20,35,0.8)"}}>
+                <div style={{fontSize:"0.78rem",color:"#4e8a9a",fontFamily:"var(--font-mono)"}}>Layout preview unavailable</div>
               </div>
-            ))}
+            )}
           </div>
         </div>
       )}
