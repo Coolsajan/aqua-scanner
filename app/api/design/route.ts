@@ -106,11 +106,6 @@ Each design must use a DIFFERENT composition:
 - right-heavy composition
 
 The prompt must be a long comma-separated Stable Diffusion prompt.
-RULES for topDownLayout:
-- Grid must be 6 rows × 10 columns minimum
-- Use ONLY: 🌿 (stem/tall plants), 🪨 (rock), 🪵 (driftwood), 🐟 (open swim zone), 🌱 (carpet/foreground), 💧 (open water), 🏔️ (rock pile), ⬜ (sand), 🌾 (grass stems)
-- Background plants (🌿🌾) at TOP rows, carpet (🌱) at BOTTOM rows, swimming space (🐟💧) in MIDDLE
-- Each design must have a unique, distinct layout arrangement
 
 RULES for designs:
 - All 4 designs must be genuinely distinct — different styles, species, difficulty levels
