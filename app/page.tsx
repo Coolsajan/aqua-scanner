@@ -2,6 +2,8 @@
 import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import AuthButton from "./components/AuthButton";
+import { useAuth } from "./context/AuthContext";
+import { supabase } from "./lib/supabase";
 import "./globals.css";
 
 type ScanCategory = "plant" | "fish" | "driftwood" | "sand";
@@ -34,6 +36,7 @@ export default function ScannerPage() {
   const [error, setError] = useState<string|null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const { user } = useAuth();
 
   const handleFile = useCallback((f: File) => {
     if (!f.type.startsWith("image/")) { setError("Please upload an image file."); return; }
@@ -52,7 +55,17 @@ export default function ScannerPage() {
         body: JSON.stringify({ image: img.split(",")[1], category: cat, mimeType: file.type }),
       });
       if (!res.ok) throw new Error("Scan failed. Please try again.");
-      setResult(await res.json());
+      const data = await res.json();
+      setResult(data);
+      
+      if (user) {
+        await supabase.from("user_scans").insert({
+          user_id: user.id,
+          scan_type: "scanner",
+          inputs: { category: cat },
+          results: data
+        });
+      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
     } finally { setLoading(false); }
