@@ -33,14 +33,6 @@ The JSON must match this structure exactly:
       "substrate": "Fine gravel or sand, 5–7cm depth",
       "waterParams": { "ph": "6.5–7.0", "temp": "24–26°C", "hardness": "Soft (2–8 dGH)" },
       "layoutDescription": "Vivid 3-4 sentence description of the design: where hardscape sits, how plants are arranged front-to-back, open swimming space, and the overall mood this creates.",
-      "topDownLayout": [
-        ["🌿","🌿","🪵","🪵","🌿","🌿","🌿","🌿","🌿","🌿"],
-        ["🌿","🪵","🪵","🌿","💧","💧","💧","🌿","🌿","🌿"],
-        ["🌿","🌿","🌿","💧","💧","🐟","🐟","💧","🌿","🌿"],
-        ["🌱","🌱","💧","💧","🐟","🐟","🐟","💧","🌱","🌱"],
-        ["🌱","🌱","🌱","🌱","💧","💧","🌱","🌱","🌱","🌱"],
-        ["🌱","🌱","🌱","🌱","🌱","🌱","🌱","🌱","🌱","🌱"]
-      ],
       "maintenanceSchedule": [
         { "frequency": "Daily", "tasks": ["Check fish health and behavior", "Top off evaporation"] },
         { "frequency": "Weekly", "tasks": ["25–30% water change", "Trim fast-growing plants", "Wipe algae from glass"] },
@@ -60,13 +52,60 @@ The JSON must match this structure exactly:
   ]
 }
 
-CRITICAL RULES for imagePrompt:
-- Write it as a direct Stable Diffusion / Flux image prompt (comma-separated descriptors)
-- Be VERY specific about the exact plants, fish, and hardscape in THIS design
-- Always include: "photorealistic aquarium", "crystal clear water", "professional aquarium photography", "underwater lighting", "8k detail"  
-- Make each of the 4 imagePrompts completely different and specific to that design's species and style
-- Example good prompt: "photorealistic planted aquarium tank, dense jungle of amazon sword and rotala, large piece of spider wood covered in java moss, school of cardinal tetras, corydoras on sandy bottom, blackwater tint, dramatic side lighting, caustic light rays, lush green underwater photography, 8k"
+CRITICAL RULES for imagePrompt (EXTREMELY IMPORTANT):
 
+You are writing prompts for a diffusion image model.
+
+The camera must ALWAYS be outside the tank looking through the glass.
+NEVER use top-down view. NEVER use isometric view. NEVER show tank from above.
+
+Each of the 4 designs MUST use a DIFFERENT camera setup:
+
+Design 1 → Eye-level wide shot (24mm lens)
+Design 2 → Cinematic 45° angle (35mm lens)
+Design 3 → Close mid shot with shallow depth of field (50mm lens)
+Design 4 → Side perspective hero shot (85mm lens)
+
+Every prompt MUST include:
+
+CAMERA & PHOTOGRAPHY
+- photographed through aquarium glass
+- realistic glass thickness visible
+- waterline visible
+- room environment softly visible outside tank
+- DSLR photography
+- depth of field
+- cinematic lighting
+- ultra high detail
+
+REALISM CONSTRAINTS
+- correct fish scale
+- correct plant scale
+- realistic substrate grain size
+- realistic aquarium LED lighting
+- natural light reflections on glass
+- NO miniature toy look
+- NO CGI render look
+- NO illustration
+- NO top view
+
+QUALITY
+- photorealistic aquarium
+- crystal clear water
+- professional aquarium photography
+- ultra detailed
+- 8k
+- HDR
+- sharp focus
+
+COMPOSITION RULE:
+Each design must use a DIFFERENT composition:
+- rule of thirds
+- centered composition
+- left-heavy composition
+- right-heavy composition
+
+The prompt must be a long comma-separated Stable Diffusion prompt.
 RULES for topDownLayout:
 - Grid must be 6 rows × 10 columns minimum
 - Use ONLY: 🌿 (stem/tall plants), 🪨 (rock), 🪵 (driftwood), 🐟 (open swim zone), 🌱 (carpet/foreground), 💧 (open water), 🏔️ (rock pile), ⬜ (sand), 🌾 (grass stems)
