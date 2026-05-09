@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import AuthButton from "../components/AuthButton";
 import { useAuth } from "../context/AuthContext";
@@ -301,6 +301,7 @@ export default function DesignerPage(){
         <div className="nav-tabs">
           <Link href="/" className="nav-tab">🔬 <span className="tab-label">Scanner</span></Link>
           <Link href="/designer" className="nav-tab active">🎨 <span className="tab-label">Designer</span></Link>
+          <Link href="/disease" className="nav-tab">🩺 <span className="tab-label">Doctor</span></Link>
         </div>
         <AuthButton />
       </nav>
@@ -330,7 +331,7 @@ export default function DesignerPage(){
               {/* Render all cards but only show active, this keeps image loading states intact across tab switches */}
               {designs.map((d,i)=>(
                 <div key={i} style={{display: activeDesign===i?"block":"none"}}>
-                  <DesignCard d={d} idx={i} formLength={form.length} formWidth={form.width} />
+                  <DesignCard d={d} idx={i} formLength={form.length} formWidth={form.width} formHeight={form.height} formShape={form.shape} />
                 </div>
               ))}
             </>
@@ -450,12 +451,9 @@ export default function DesignerPage(){
 const ZONE_CLASS:Record<string,string>={foreground:"zfg",midground:"zmg",background:"zbg",floating:"zfl",fg:"zfg",mg:"zmg",bg:"zbg"};
 const CELL_LEGEND:Record<string,string>={"🌿":"Plants","🪨":"Rock","🪵":"Driftwood","🐟":"Swim space","🌱":"Carpet","💧":"Open water","🏔️":"Stone pile","⬜":"Sand","🌾":"Stem grass"};
 
-function DesignCard({d,idx,formLength,formWidth}:{d:DesignIdea;idx:number;formLength:string;formWidth:string}){
+function DesignCard({d,idx,formLength,formWidth,formHeight,formShape}:{d:DesignIdea;idx:number;formLength:string;formWidth:string;formHeight:string;formShape:string}){
   // Staggered loading: delay loading of designs 2-4 to prevent rate limiting
   const [shouldLoad, setShouldLoad] = useState(false);
-  import("react").then((m) => {
-    // using dynamic useEffect to avoid top level import conflict if any
-  });
   
   const [imgLoaded,setImgLoaded]=useState(false);
   const [imgError,setImgError]=useState(false);
@@ -465,26 +463,39 @@ function DesignCard({d,idx,formLength,formWidth}:{d:DesignIdea;idx:number;formLe
   const [tdError,setTdError]=useState(false);
   const [tdRetry, setTdRetry] = useState(0);
 
-  // Aspect ratio calculation for top-down view
+  // Aspect ratio calculation for Front view (main image)
   const l = parseFloat(formLength) || 120;
+  const h = parseFloat(formHeight) || 50;
+  const frontRatio = l / h;
+  let mainW = 896;
+  let mainH = Math.round(896 / frontRatio);
+  if (mainH > 896) { mainH = 896; mainW = Math.round(896 * frontRatio); }
+
+  // Aspect ratio calculation for Top-down view
   const w = parseFloat(formWidth) || 45;
-  const ratio = l / w;
+  const topRatio = l / w;
   let tdW = 800;
-  let tdH = Math.round(800 / ratio);
-  if (tdH > 800) { tdH = 800; tdW = Math.round(800 * ratio); }
+  let tdH = Math.round(800 / topRatio);
+  if (tdH > 800) { tdH = 800; tdW = Math.round(800 * topRatio); }
 
   const seed = idx*1000+(d.title?.length||0)*7 + retryCount;
   const tdSeed = seed + 500 + tdRetry;
 
-  const imgUrl = (shouldLoad && d.imagePrompt) ? buildImageUrl(d.imagePrompt, seed) : "";
+  const shapeStr = formShape ? `Tank shape: ${formShape}. ` : "";
+  const mainPrompt = shapeStr + d.imagePrompt;
+
+  const imgUrl = (shouldLoad && d.imagePrompt) ? buildImageUrl(mainPrompt, seed, mainW, mainH) : "";
   const tdUrl = (shouldLoad && d.imagePromptTopDown) ? buildImageUrl(d.imagePromptTopDown, tdSeed, tdW, tdH) : "";
 
   const handleImgError = () => { if(retryCount < 3) setRetryCount(r=>r+1); else setImgError(true); };
   const handleTdError = () => { if(tdRetry < 3) setTdRetry(r=>r+1); else setTdError(true); };
 
-  if (typeof window !== 'undefined' && !shouldLoad) {
-    setTimeout(() => setShouldLoad(true), idx * 2500); // 2.5s delay per index
-  }
+  useEffect(() => {
+    if (!shouldLoad) {
+      const timer = setTimeout(() => setShouldLoad(true), idx * 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [shouldLoad, idx]);
 
   return(
     <div className="detail-card">
