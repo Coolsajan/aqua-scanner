@@ -9,7 +9,7 @@ import "./globals.css";
 type ScanCategory = "plant" | "fish" | "driftwood" | "sand";
 interface ScanResult {
   category: ScanCategory; name: string; scientificName?: string; description: string;
-  aquariumSuitability: "excellent"|"good"|"moderate"|"poor"|"not_suitable"; suitabilityReason: string;
+  aquariumSuitability: "excellent" | "good" | "moderate" | "poor" | "not_suitable"; suitabilityReason: string;
   co2Required?: boolean; co2Notes?: string; lightingNeeds?: string;
   waterParameters?: { ph?: string; temperature?: string; hardness?: string };
   careLevel?: string; growthRate?: string; size?: string; origin?: string;
@@ -17,23 +17,23 @@ interface ScanResult {
   specialNotes?: string[]; tips: string[];
 }
 
-const CAT_LABELS: Record<ScanCategory,string> = { plant:"Aquatic Plant", fish:"Fish", driftwood:"Driftwood", sand:"Substrate" };
-const CAT_ICONS: Record<ScanCategory,string> = { plant:"🌿", fish:"🐟", driftwood:"🪵", sand:"🪨" };
+const CAT_LABELS: Record<ScanCategory, string> = { plant: "Aquatic Plant", fish: "Fish", driftwood: "Driftwood", sand: "Substrate" };
+const CAT_ICONS: Record<ScanCategory, string> = { plant: "🌿", fish: "🐟", driftwood: "🪵", sand: "🪨" };
 const SUIT_CFG = {
-  excellent:  { label:"Excellent",    color:"#00ff9d", bg:"rgba(0,255,157,0.1)" },
-  good:       { label:"Good",         color:"#7fff6b", bg:"rgba(127,255,107,0.1)" },
-  moderate:   { label:"Moderate",     color:"#ffd166", bg:"rgba(255,209,102,0.1)" },
-  poor:       { label:"Poor",         color:"#ff8c42", bg:"rgba(255,140,66,0.1)" },
-  not_suitable:{ label:"Not Suitable",color:"#ff4d6d", bg:"rgba(255,77,109,0.1)" },
+  excellent: { label: "Excellent", color: "#00ff9d", bg: "rgba(0,255,157,0.1)" },
+  good: { label: "Good", color: "#7fff6b", bg: "rgba(127,255,107,0.1)" },
+  moderate: { label: "Moderate", color: "#ffd166", bg: "rgba(255,209,102,0.1)" },
+  poor: { label: "Poor", color: "#ff8c42", bg: "rgba(255,140,66,0.1)" },
+  not_suitable: { label: "Not Suitable", color: "#ff4d6d", bg: "rgba(255,77,109,0.1)" },
 };
 
 export default function ScannerPage() {
-  const [img, setImg] = useState<string|null>(null);
-  const [file, setFile] = useState<File|null>(null);
+  const [img, setImg] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [cat, setCat] = useState<ScanCategory>("plant");
-  const [result, setResult] = useState<ScanResult|null>(null);
+  const [result, setResult] = useState<ScanResult | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string|null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
@@ -51,13 +51,13 @@ export default function ScannerPage() {
     setLoading(true); setError(null); setResult(null);
     try {
       const res = await fetch("/api/scan", {
-        method:"POST", headers:{"Content-Type":"application/json"},
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image: img.split(",")[1], category: cat, mimeType: file.type }),
       });
       if (!res.ok) throw new Error("Scan failed. Please try again.");
       const data = await res.json();
       setResult(data);
-      
+
       if (user) {
         await supabase.from("user_scans").insert({
           user_id: user.id,
@@ -138,12 +138,13 @@ export default function ScannerPage() {
         <div className="nav-tabs">
           <Link href="/" className="nav-tab active">🔬 <span className="tab-label">Scanner</span></Link>
           <Link href="/designer" className="nav-tab">🎨 <span className="tab-label">Designer</span></Link>
+          <Link href="/disease" className="nav-tab">🩺 <span className="tab-label">Doctor</span></Link>
         </div>
         <AuthButton />
       </nav>
       <div className="orbs">
-        <div className="orb" style={{width:400,height:400,background:"#00b4d8",top:-120,left:-120}}/>
-        <div className="orb" style={{width:350,height:350,background:"#06d6a0",bottom:-80,right:-80}}/>
+        <div className="orb" style={{ width: 400, height: 400, background: "#00b4d8", top: -120, left: -120 }} />
+        <div className="orb" style={{ width: 350, height: 350, background: "#06d6a0", bottom: -80, right: -80 }} />
       </div>
 
       <div className="page">
@@ -156,7 +157,7 @@ export default function ScannerPage() {
           <label className="sec-lbl">What are you scanning?</label>
           <div className="cat-grid">
             {(Object.keys(CAT_LABELS) as ScanCategory[]).map(c => (
-              <button key={c} onClick={() => setCat(c)} className={`cat-btn${cat===c?" act":""}`}>
+              <button key={c} onClick={() => setCat(c)} className={`cat-btn${cat === c ? " act" : ""}`}>
                 <span className="cat-ico">{CAT_ICONS[c]}</span>{CAT_LABELS[c]}
               </button>
             ))}
@@ -164,34 +165,34 @@ export default function ScannerPage() {
 
           <label className="sec-lbl">Upload Image</label>
           {!img ? (
-            <div className={`drop${dragOver?" dov":""}`}
-              onDrop={e=>{e.preventDefault();setDragOver(false);const f=e.dataTransfer.files[0];if(f)handleFile(f);}}
-              onDragOver={e=>{e.preventDefault();setDragOver(true);}}
-              onDragLeave={()=>setDragOver(false)}
-              onClick={()=>fileRef.current?.click()}>
+            <div className={`drop${dragOver ? " dov" : ""}`}
+              onDrop={e => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
+              onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onClick={() => fileRef.current?.click()}>
               <div className="drop-ico">📷</div>
               <div className="drop-t">Tap to upload or drag & drop</div>
               <div className="drop-s">JPG · PNG · WEBP</div>
-              <input ref={fileRef} type="file" accept="image/*" style={{display:"none"}} onChange={e=>e.target.files?.[0]&&handleFile(e.target.files[0])}/>
+              <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
             </div>
           ) : (
             <div>
               <div className="prev-box">
-                <img src={img} alt="Preview" className="prev-img"/>
+                <img src={img} alt="Preview" className="prev-img" />
                 <div className="prev-badge">{CAT_ICONS[cat]} {CAT_LABELS[cat]}</div>
               </div>
               <div className="prev-acts">
-                <button className="btn-primary" style={{flex:1}} onClick={handleScan} disabled={loading}>
-                  {loading?<><span className="spin"/>&nbsp;Analyzing...</>:"🔬 Scan Now"}
+                <button className="btn-primary" style={{ flex: 1 }} onClick={handleScan} disabled={loading}>
+                  {loading ? <><span className="spin" />&nbsp;Analyzing...</> : "🔬 Scan Now"}
                 </button>
                 <button className="btn-ghost" onClick={reset} disabled={loading}>↩ Change</button>
               </div>
             </div>
           )}
 
-          {error && <div className="err-box" style={{marginTop:14}}>⚠️ {error}</div>}
-          {loading && <div className="shimmer-card" style={{marginTop:20}}>{[40,70,55,80].map((w,i)=><div key={i} className="shimmer-row" style={{width:`${w}%`}}/>)}</div>}
-          {result && !loading && <ResultCard r={result}/>}
+          {error && <div className="err-box" style={{ marginTop: 14 }}>⚠️ {error}</div>}
+          {loading && <div className="shimmer-card" style={{ marginTop: 20 }}>{[40, 70, 55, 80].map((w, i) => <div key={i} className="shimmer-row" style={{ width: `${w}%` }} />)}</div>}
+          {result && !loading && <ResultCard r={result} />}
         </div>
       </div>
     </>
@@ -207,51 +208,51 @@ function ResultCard({ r }: { r: ScanResult }) {
         <div>
           <div className="rcat">{CAT_LABELS[r.category]}</div>
           <div className="rname">{r.name}</div>
-          {r.scientificName&&<div className="rsci">{r.scientificName}</div>}
+          {r.scientificName && <div className="rsci">{r.scientificName}</div>}
         </div>
       </div>
-      <div className="suit" style={{background:s.bg,borderColor:s.color+"44"}}>
-        <div><span className="suit-lbl" style={{color:s.color}}>Aquarium Suitability: {s.label}</span><p className="suit-r">{r.suitabilityReason}</p></div>
-        <div className="suit-dot" style={{background:s.color,boxShadow:`0 0 8px ${s.color}`}}/>
+      <div className="suit" style={{ background: s.bg, borderColor: s.color + "44" }}>
+        <div><span className="suit-lbl" style={{ color: s.color }}>Aquarium Suitability: {s.label}</span><p className="suit-r">{r.suitabilityReason}</p></div>
+        <div className="suit-dot" style={{ background: s.color, boxShadow: `0 0 8px ${s.color}` }} />
       </div>
       <div className="iblk"><div className="iblk-t">📖 Overview</div><p className="desc-t">{r.description}</p></div>
-      {r.co2Required!==undefined&&(
-        <div className={`co2b ${r.co2Required?"co2-yes":"co2-no"}`}>
-          <span className="co2-ico">{r.co2Required?"💨":"✅"}</span>
-          <div><div className="co2-lbl">CO₂ Injection: <strong>{r.co2Required?"Required":"Not Required"}</strong></div>{r.co2Notes&&<div className="co2-n">{r.co2Notes}</div>}</div>
+      {r.co2Required !== undefined && (
+        <div className={`co2b ${r.co2Required ? "co2-yes" : "co2-no"}`}>
+          <span className="co2-ico">{r.co2Required ? "💨" : "✅"}</span>
+          <div><div className="co2-lbl">CO₂ Injection: <strong>{r.co2Required ? "Required" : "Not Required"}</strong></div>{r.co2Notes && <div className="co2-n">{r.co2Notes}</div>}</div>
         </div>
       )}
       <div className="sgrid">
-        {r.lightingNeeds&&<Stat ico="💡" lbl="Lighting" val={r.lightingNeeds}/>}
-        {r.careLevel&&<Stat ico="🎯" lbl="Care Level" val={r.careLevel}/>}
-        {r.growthRate&&<Stat ico="📈" lbl="Growth Rate" val={r.growthRate}/>}
-        {r.size&&<Stat ico="📏" lbl="Size" val={r.size}/>}
-        {r.origin&&<Stat ico="🌍" lbl="Origin" val={r.origin}/>}
-        {r.tankSize&&<Stat ico="🪣" lbl="Min Tank" val={r.tankSize}/>}
-        {r.diet&&<Stat ico="🍽️" lbl="Diet" val={r.diet}/>}
-        {r.behavior&&<Stat ico="🤝" lbl="Behavior" val={r.behavior}/>}
+        {r.lightingNeeds && <Stat ico="💡" lbl="Lighting" val={r.lightingNeeds} />}
+        {r.careLevel && <Stat ico="🎯" lbl="Care Level" val={r.careLevel} />}
+        {r.growthRate && <Stat ico="📈" lbl="Growth Rate" val={r.growthRate} />}
+        {r.size && <Stat ico="📏" lbl="Size" val={r.size} />}
+        {r.origin && <Stat ico="🌍" lbl="Origin" val={r.origin} />}
+        {r.tankSize && <Stat ico="🪣" lbl="Min Tank" val={r.tankSize} />}
+        {r.diet && <Stat ico="🍽️" lbl="Diet" val={r.diet} />}
+        {r.behavior && <Stat ico="🤝" lbl="Behavior" val={r.behavior} />}
       </div>
-      {r.waterParameters&&(
-        <div className="iblk" style={{marginTop:16}}>
+      {r.waterParameters && (
+        <div className="iblk" style={{ marginTop: 16 }}>
           <div className="iblk-t">💧 Water Parameters</div>
           <div className="params">
-            {r.waterParameters.ph&&<div className="param"><span className="pk">pH</span><span className="pv">{r.waterParameters.ph}</span></div>}
-            {r.waterParameters.temperature&&<div className="param"><span className="pk">Temp</span><span className="pv">{r.waterParameters.temperature}</span></div>}
-            {r.waterParameters.hardness&&<div className="param"><span className="pk">Hardness</span><span className="pv">{r.waterParameters.hardness}</span></div>}
+            {r.waterParameters.ph && <div className="param"><span className="pk">pH</span><span className="pv">{r.waterParameters.ph}</span></div>}
+            {r.waterParameters.temperature && <div className="param"><span className="pk">Temp</span><span className="pv">{r.waterParameters.temperature}</span></div>}
+            {r.waterParameters.hardness && <div className="param"><span className="pk">Hardness</span><span className="pv">{r.waterParameters.hardness}</span></div>}
           </div>
         </div>
       )}
-      {r.specialNotes&&r.specialNotes.length>0&&(
-        <div className="iblk" style={{marginTop:16}}><div className="iblk-t">⚠️ Special Notes</div><ul className="nlist">{r.specialNotes.map((n,i)=><li key={i}>{n}</li>)}</ul></div>
+      {r.specialNotes && r.specialNotes.length > 0 && (
+        <div className="iblk" style={{ marginTop: 16 }}><div className="iblk-t">⚠️ Special Notes</div><ul className="nlist">{r.specialNotes.map((n, i) => <li key={i}>{n}</li>)}</ul></div>
       )}
-      {r.tips&&r.tips.length>0&&(
-        <div className="tips-blk"><div className="iblk-t">💡 Pro Tips</div><ul className="tlist">{r.tips.map((t,i)=><li key={i}>{t}</li>)}</ul></div>
+      {r.tips && r.tips.length > 0 && (
+        <div className="tips-blk"><div className="iblk-t">💡 Pro Tips</div><ul className="tlist">{r.tips.map((t, i) => <li key={i}>{t}</li>)}</ul></div>
       )}
     </div>
   );
 }
 
-function Stat({ ico, lbl, val }: { ico:string; lbl:string; val:string }) {
+function Stat({ ico, lbl, val }: { ico: string; lbl: string; val: string }) {
   return (
     <div className="sbox">
       <span className="sico">{ico}</span>
